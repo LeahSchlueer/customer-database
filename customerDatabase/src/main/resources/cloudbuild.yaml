@@ -1,0 +1,20 @@
+steps:
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/my-docker-repo/httpd-image', '.' ]
+
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-west1-docker.pkg.dev/$PROJECT_ID/my-docker-repo/httpd-image']
+
+
+  - name: 'eu.gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - >
+        gcloud deploy releases create release-$BUILD_ID
+        --delivery-pipeline=customerDatabase
+        --region=us-central1
+        --images=customerDatabase-image=europe-west1-docker.pkg.dev/$PROJECT_ID/my-docker-repo/httpd-image
+        --source=./
